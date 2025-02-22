@@ -4,7 +4,7 @@ import LoginCard from "../src/components/loginCard/loginCard";
 export default function LoginPage() {
   return (
     <div className={styles.background}>
-      <LoginCard />
+      <LoginCard title="Entre em sua conta">Login</LoginCard>
     </div>
   );
 }
