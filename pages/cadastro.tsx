@@ -1,6 +1,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import styles from "../styles/Login.module.css";
+import { setCookie } from "cookies-next";
+import { useRouter } from "next/router";
 
 import LoginCard from "../src/components/loginCard/loginCard";
 import Input from "../src/components/input/input";
@@ -12,6 +14,9 @@ export default function CadastroPage() {
     email: "",
     password: "",
   });
+  const [error, setError] = useState("");
+
+  const router = useRouter();
 
   const handleFormEdit = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -23,10 +28,29 @@ export default function CadastroPage() {
     });
   };
 
+  const handleForm = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    try {
+      const response = await fetch(`/api/user/cadastro`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const json = await response.json();
+      if (response.status !== 201) throw new Error(json);
+
+      setCookie("authorization", json);
+      router.push("/");
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
   return (
     <div className={styles.background}>
       <LoginCard title="Crie sua conta">
-        <form className={styles.form}>
+        <form onSubmit={handleForm} className={styles.form}>
           <Input
             type="text"
             placeholder="Seu nome"
@@ -55,6 +79,7 @@ export default function CadastroPage() {
             }}
           />
           <Button>Cadastrar</Button>
+          {error && <p className={styles.error}>{error}</p>}
           <Link href="/login">Ja possui uma conta? Entre</Link>
         </form>
       </LoginCard>
